@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <title>Liste des tâches</title>
 </head>
 <body>
     <h1>Liste des tâches</h1>
+    <div class="container">
+        <table class="table border-gray">
+            <thead>
+                <tr>
+                    <th scope="col">Terminé</th>
+                    <th scope="col">Titre</th>
+                </tr>
+            </thead>
+            <tbody id="liste-taches">
+            </tbody>
+        </table>
+    </div>
+    <script src="../js/liste-taches.js"></script>
 </body>
 </html>

@@ -1,9 +1,39 @@
 // Processus principal
 
-const {app, BrowserWindow, ipcMain, Menu} = require("electron")
+const {app, BrowserWindow, ipcMain, Menu, dialog} = require("electron")
 const path = require('path');
+const mysql = require('mysql2/promise')
 
+// Fenêtre principale
 let window;
+
+// Configuration de l'accès à la base de données
+const dbConfig = {
+    host: 'localhost',
+    port: '3306',
+    user: 'root',
+    password: '',
+    database: 'db_todos',
+    connectionLimit: 10, // Le nombre maximal de connexions simulatanés dans le pool
+    waitForConnections: true,
+    queueLimit: 0
+}
+
+// Créer le pool de connexion
+const pool = mysql.createPool(dbConfig)
+
+// Tester la connexion
+async function testConnexion() {
+    try {
+        // Demander une connexion au pool
+        const connexion = await pool.getConnection()
+        console.log('Connexion avec la base de donnée établie')
+        connexion.release() // On rend la connexion disponible dans le pool
+    } catch(error) {
+        console.error('Erreur de connexion à la base de données')
+    }
+}
+testConnexion()
 
 // Créer la fenêtre principale
 function createWindow() {
@@ -17,6 +47,7 @@ function createWindow() {
             preload: path.join(__dirname, 'src/js/preload.js')
         }
     })
+    // window.webContents.openDevTools()
     // Création du menu
     createMenu()
     window.loadFile('src/pages/index.html');
@@ -88,5 +119,26 @@ ipcMain.handle('get-versions', () => {
         electron: process.versions.electron,
         node: process.versions.node,
         chrome: process.versions.chrome
+    }
+})
+
+async function getAllTodos() {
+    try {
+        const resultat = await pool.query('SELECT * FROM todos ORDER BY created_at DESC')
+        return resultat[0] // Retourne une promesse avec le résultat
+    } catch (error) {
+        console.error('Erreur lors de la récupération des tâches')
+        throw error; // Retourne une promesse non résolue
+    }
+}
+
+// Ecouter sur le canal "todos:getAll"
+ipcMain.handle('todos:getAll', async () => {
+    // Récupérer la liste des tâches dans la base de données avec mysql
+    try {
+        return await getAllTodos() // Retourne une promesse avec le résultat
+    } catch(error) {
+        dialog.showErrorBox('Erreur technique', 'Impossible de récupérer la liste des tâches')
+        return []; // Retourne une promesse avec un tableau vide
     }
 })
