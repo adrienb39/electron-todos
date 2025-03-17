@@ -10,7 +10,8 @@ contextBridge.exposeInMainWorld('versions', {
 
 contextBridge.exposeInMainWorld('todosAPI', {
     // Fonction qui récupère les versions via IPC
-    getAll: () => ipcRenderer.invoke('todos:getAll')
+    getAll: () => ipcRenderer.invoke('todos:getAll'),
+    getAjout: () => ipcRenderer.invoke('todos:gatAjout')
 })
 
 console.log("Preload chargé avec succès")

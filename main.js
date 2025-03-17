@@ -142,3 +142,25 @@ ipcMain.handle('todos:getAll', async () => {
         return []; // Retourne une promesse avec un tableau vide
     }
 })
+
+async function getAjoutTodos() {
+    try {
+        const resultat = await pool.query('INSERT INTO todos (titre)')
+        // return resultat[0] // Retourne une promesse avec le résultat
+        console.log()
+    } catch (error) {
+        console.error('Erreur lors de la récupération des tâches')
+        throw error; // Retourne une promesse non résolue
+    }
+}
+
+// Ecouter sur le canal "todos:getAjout"
+ipcMain.handle('todos:getAjout', async () => {
+    // Récupérer la liste des tâches dans la base de données avec mysql
+    try {
+        return await getAjoutTodos() // Retourne une promesse avec le résultat
+    } catch(error) {
+        dialog.showErrorBox('Erreur technique', 'Impossible d\'ajouter un todo')
+        return []; // Retourne une promesse avec un tableau vide
+    }
+})

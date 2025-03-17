@@ -3,9 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <title>Ajout d'une nouvelle tâche</title>
 </head>
 <body>
     <h1>Ajout d'une nouvelle tâche</h1>
+    <div class="container">
+        <div class="mb-3">
+            <label for="titre" class="form-label">Titre</label>
+            <input class="form-control" type="text" name="titre" id="titre" placeholder="Titre">
+        </div>
+        <button type="submit" class="btn btn-primary mb-3" id="ajout-tache">Ajouter</button>
+    </div>
+    <script src="../js/ajout-tache.js"></script>
 </body>
 </html>
