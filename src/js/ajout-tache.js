@@ -1,12 +1,11 @@
 // Processus de rendu
 
-const ajoutTaches = document.querySelector("#ajout-tache")
+var title = document.getElementById("titre")
+const submitTitre = document.querySelector('#ajout-tache')
 
-async function ajoutTaches() {
-    // Appel de la fonction getVersions exposée par le preload
-    const taches = await todosAPI.getAjout()
-
-    
+document.getElementById('ajout-tache').onclick = async function () {
+    if (title) {
+        title =  title.value
+        title = await todosAPI.add(title)
+    }
 }
-
-ajoutTaches()

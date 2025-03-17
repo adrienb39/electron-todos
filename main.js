@@ -47,7 +47,7 @@ function createWindow() {
             preload: path.join(__dirname, 'src/js/preload.js')
         }
     })
-    // window.webContents.openDevTools()
+    window.webContents.openDevTools()
     // Création du menu
     createMenu()
     window.loadFile('src/pages/index.html');
@@ -143,22 +143,24 @@ ipcMain.handle('todos:getAll', async () => {
     }
 })
 
-async function getAjoutTodos() {
+async function addTodo(title) {
     try {
-        const resultat = await pool.query('INSERT INTO todos (titre)')
-        // return resultat[0] // Retourne une promesse avec le résultat
-        console.log()
+        console.log('Ajout d\'une nouvelle tâche:' + title)
+        const [result] = await pool.query('INSERT INTO todos (titre, termine) VALUES (?, ?)', [title, 0])
+        console.log('Tâche ajoutée avec l\'ID:' + result.insertId)
+        return
     } catch (error) {
-        console.error('Erreur lors de la récupération des tâches')
+        console.error('Erreur lors de l\'ajout de la tâche', error)
         throw error; // Retourne une promesse non résolue
     }
 }
 
 // Ecouter sur le canal "todos:getAjout"
-ipcMain.handle('todos:getAjout', async () => {
+ipcMain.handle('todos:add', async (event, title) => {
     // Récupérer la liste des tâches dans la base de données avec mysql
     try {
-        return await getAjoutTodos() // Retourne une promesse avec le résultat
+        await addTodo(title) // Retourne une promesse avec le résultat
+        return true
     } catch(error) {
         dialog.showErrorBox('Erreur technique', 'Impossible d\'ajouter un todo')
         return []; // Retourne une promesse avec un tableau vide
