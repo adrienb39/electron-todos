@@ -4,16 +4,18 @@ const {app, BrowserWindow, ipcMain, Menu, dialog} = require("electron")
 const path = require('path');
 const mysql = require('mysql2/promise')
 
+require('dotenv').config()
+
 // Fenêtre principale
 let window;
 
 // Configuration de l'accès à la base de données
 const dbConfig = {
-    host: 'localhost',
-    port: '3306',
-    user: 'root',
-    password: '',
-    database: 'db_todos',
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     connectionLimit: 10, // Le nombre maximal de connexions simulatanés dans le pool
     waitForConnections: true,
     queueLimit: 0
@@ -47,7 +49,7 @@ function createWindow() {
             preload: path.join(__dirname, 'src/js/preload.js')
         }
     })
-    window.webContents.openDevTools()
+    // window.webContents.openDevTools()
     // Création du menu
     createMenu()
     window.loadFile('src/pages/index.html');
@@ -139,30 +141,6 @@ ipcMain.handle('todos:getAll', async () => {
         return await getAllTodos() // Retourne une promesse avec le résultat
     } catch(error) {
         dialog.showErrorBox('Erreur technique', 'Impossible de récupérer la liste des tâches')
-        return []; // Retourne une promesse avec un tableau vide
-    }
-})
-
-async function addTodo(title) {
-    try {
-        console.log('Ajout d\'une nouvelle tâche:' + title)
-        const [result] = await pool.query('INSERT INTO todos (titre, termine) VALUES (?, ?)', [title, 0])
-        console.log('Tâche ajoutée avec l\'ID:' + result.insertId)
-        return
-    } catch (error) {
-        console.error('Erreur lors de l\'ajout de la tâche', error)
-        throw error; // Retourne une promesse non résolue
-    }
-}
-
-// Ecouter sur le canal "todos:getAjout"
-ipcMain.handle('todos:add', async (event, title) => {
-    // Récupérer la liste des tâches dans la base de données avec mysql
-    try {
-        await addTodo(title) // Retourne une promesse avec le résultat
-        return true
-    } catch(error) {
-        dialog.showErrorBox('Erreur technique', 'Impossible d\'ajouter un todo')
         return []; // Retourne une promesse avec un tableau vide
     }
 })
